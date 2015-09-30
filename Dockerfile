@@ -4,18 +4,19 @@ MAINTAINER Stefan Reuter <docker@reucon.com>
 ENV SONATYPE_WORK /sonatype-work
 ENV NEXUS_VERSION 2.11.4-01
 
-RUN curl --fail --silent --location --retry 3 \
+RUN useradd -r -u 200 -m -c "Nexus role account" -d ${SONATYPE_WORK} -s /bin/false nexus \
+  && curl --fail --silent --location --retry 3 \
     https://download.sonatype.com/nexus/oss/nexus-${NEXUS_VERSION}-bundle.tar.gz \
   | tar xz -C /opt \
   && mv /opt/nexus-${NEXUS_VERSION} /opt/nexus \
   && rm -rf /opt/nexus/nexus/WEB-INF/plugin-repository/nexus-outreach-plugin-* \
-  && chown -R daemon:daemon /opt/nexus
+  && chown -R nexus:nexus /opt/nexus
 
 VOLUME ${SONATYPE_WORK}
 
 EXPOSE 8081
 WORKDIR /opt/nexus
-USER daemon
+USER nexus
 ENV CONTEXT_PATH /
 ENV MAX_HEAP 768m
 ENV MIN_HEAP 256m
