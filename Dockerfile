@@ -8,15 +8,14 @@ RUN curl --fail --silent --location --retry 3 \
     https://download.sonatype.com/nexus/oss/nexus-${NEXUS_VERSION}-bundle.tar.gz \
   | tar xz -C /opt \
   && mv /opt/nexus-${NEXUS_VERSION} /opt/nexus \
-  && rm -rf /opt/nexus/nexus/WEB-INF/plugin-repository/nexus-outreach-plugin-*
-
-RUN useradd -r -u 200 -m -c "Nexus role account" -d ${SONATYPE_WORK} -s /bin/false nexus
+  && rm -rf /opt/nexus/nexus/WEB-INF/plugin-repository/nexus-outreach-plugin-* \
+  && chown -R daemon:daemon /opt/nexus
 
 VOLUME ${SONATYPE_WORK}
 
 EXPOSE 8081
 WORKDIR /opt/nexus
-USER nexus
+USER daemon
 ENV CONTEXT_PATH /
 ENV MAX_HEAP 768m
 ENV MIN_HEAP 256m
@@ -28,4 +27,3 @@ CMD java \
   -cp 'conf/:lib/*' \
   ${JAVA_OPTS} \
   org.sonatype.nexus.bootstrap.Launcher ${LAUNCHER_CONF}
-
